@@ -1,23 +1,67 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Star, ShoppingCart, Heart, Share2, ArrowRight } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
-import products from '@/data/products.json'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const id = params.id as string
   const { addToCart } = useCart()
   
-  const product = products.find(p => p.id === parseInt(id))
+  const [product, setProduct] = useState<any>(null)
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProduct()
+  }, [id])
+
+  const fetchProduct = async () => {
+    try {
+      // Fetch single product
+      const res = await fetch(`/api/products/${id}`)
+      if (!res.ok) {
+        setProduct(null)
+        setLoading(false)
+        return
+      }
+      const data = await res.json()
+      setProduct(data)
+
+      // Fetch related products
+      const allRes = await fetch('/api/products')
+      const allData = await allRes.json()
+      const related = allData
+        .filter((p: any) => p.category === data.category && p.id !== data.id)
+        .slice(0, 4)
+      setRelatedProducts(related)
+    } catch (error) {
+      console.error('Error fetching product:', error)
+      setProduct(null)
+    } finally {
+      setLoading(false)
+    }
+  }
   
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">جاري التحميل...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">المنتج غير موجود</h1>
+          <h1 className="text-4xl font-bold mb-4 dark:text-white">المنتج غير موجود</h1>
           <Link href="/products" className="btn-primary">
             العودة للمنتجات
           </Link>
@@ -26,8 +70,9 @@ export default function ProductDetailPage() {
     )
   }
 
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-  const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4)
+  const discount = product.originalPrice 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0
 
   const handleAddToCart = () => {
     addToCart({
