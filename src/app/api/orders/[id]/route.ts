@@ -1,26 +1,28 @@
 import { NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb'
-import Order from '@/models/Order'
+import { supabase } from '@/lib/supabase'
 
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    await connectDB()
     const body = await request.json()
     
-    const order = await Order.findByIdAndUpdate(
-      params.id,
-      { status: body.status },
-      { new: true }
-    )
+    const { data, error } = await supabase
+      .from('orders')
+      .update({
+        status: body.status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', params.id)
+      .select()
+      .single()
     
-    if (!order) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
     
-    return NextResponse.json({ success: true, order })
+    return NextResponse.json({ success: true, order: data })
   } catch (error) {
     console.error('Error updating order:', error)
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
@@ -32,14 +34,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await connectDB()
-    const order = await Order.findById(params.id)
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', params.id)
+      .single()
     
-    if (!order) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
     
-    return NextResponse.json(order)
+    return NextResponse.json(data)
   } catch (error) {
     console.error('Error fetching order:', error)
     return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 })
