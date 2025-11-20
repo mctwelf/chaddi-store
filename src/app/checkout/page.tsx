@@ -91,9 +91,11 @@ export default function CheckoutPage() {
     
     message += `⏰ التاريخ: ${new Date().toLocaleString('ar-MR')}`
     
-    // فتح واتساب
+    // فتح واتساب - يعمل على iPhone و Android
     const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+    
+    // استخدام window.location بدلاً من window.open للتوافق مع iPhone
+    window.location.href = whatsappUrl
   }
 
   const saveOrderToDatabase = async () => {
