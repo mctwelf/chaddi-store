@@ -6,7 +6,7 @@ import { useCart } from '@/context/CartContext'
 import { CheckCircle, MapPin } from 'lucide-react'
 
 // ⚠️ ضع رقم الواتساب الخاص بك هنا (بصيغة دولية بدون + أو 00)
-const ADMIN_WHATSAPP = '22232072456'
+const ADMIN_WHATSAPP = '22242415253'
 
 const CITIES = [
   'نواكشوط',
