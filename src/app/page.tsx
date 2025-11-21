@@ -8,6 +8,11 @@ import ProductCard from '@/components/ProductCard'
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
 
   useEffect(() => {
     fetchFeaturedProducts()
@@ -29,10 +34,10 @@ export default function Home() {
   return (
     <div className="min-h-screen dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 py-20 transition-all duration-1000">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-12">
-            <div className="flex-1 text-center lg:text-right space-y-6">
+            <div className={`flex-1 text-center lg:text-right space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="inline-block">
                 <span className="bg-gradient-to-r from-primary-500 to-accent-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                   ✨ عروض حصرية حتى 50%
@@ -72,7 +77,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex-1 relative">
+            <div className={`flex-1 relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <div className="relative w-full max-w-lg mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
                 <img
