@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI('AIzaSyDXW53LMx8No7H2orlAmIgh3CPfV0KJ37E')
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+const model = genAI.getGenerativeModel({ model: 'Gemini 2.5 Pro' })
 
 interface Message {
   id: string
