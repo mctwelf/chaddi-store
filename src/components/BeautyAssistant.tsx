@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Sparkles, Bot } from 'lucide-react'
+import { MessageCircle, X, Send, Sparkles, Bot, Trash2 } from 'lucide-react'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Initialize Gemini AI
@@ -52,6 +52,31 @@ export default function BeautyAssistant() {
   const [products, setProducts] = useState<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Load chat history from localStorage
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('beautyAssistantChat')
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages)
+        // Convert timestamp strings back to Date objects
+        const messagesWithDates = parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+        setMessages(messagesWithDates)
+      } catch (error) {
+        console.error('Error loading chat history:', error)
+      }
+    }
+  }, [])
+
+  // Save chat history to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('beautyAssistantChat', JSON.stringify(messages))
+    }
+  }, [messages])
+
   // Fetch products from database
   useEffect(() => {
     const fetchProducts = async () => {
@@ -76,7 +101,7 @@ export default function BeautyAssistant() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Send welcome message
+      // Send welcome message only if no chat history
       const welcomeMessage: Message = {
         id: Date.now().toString(),
         text: BEAUTY_KNOWLEDGE.greetings[0],
@@ -85,7 +110,7 @@ export default function BeautyAssistant() {
       }
       setMessages([welcomeMessage])
     }
-  }, [isOpen])
+  }, [isOpen, messages.length])
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
@@ -196,6 +221,21 @@ ${productsList}
     }
   }
 
+  const clearChat = () => {
+    if (confirm('هل تريدين مسح المحادثة؟ سيتم حذف جميع الرسائل.')) {
+      setMessages([])
+      localStorage.removeItem('beautyAssistantChat')
+      // Show welcome message again
+      const welcomeMessage: Message = {
+        id: Date.now().toString(),
+        text: BEAUTY_KNOWLEDGE.greetings[0],
+        sender: 'assistant',
+        timestamp: new Date(),
+      }
+      setMessages([welcomeMessage])
+    }
+  }
+
   const quickQuestions = [
     'ما هو أفضل منتج للبشرة الجافة؟',
     'كيف أعالج حب الشباب؟',
@@ -232,12 +272,21 @@ ${productsList}
                 <p className="text-white/80 text-xs">متصلة الآن • ترد فوراً</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={clearChat}
+                className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+                title="مسح المحادثة"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
