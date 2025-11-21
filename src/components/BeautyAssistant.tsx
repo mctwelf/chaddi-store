@@ -2,6 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Sparkles, Bot } from 'lucide-react'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI('AIzaSyDXW53LMx8No7H2orlAmIgh3CPfV0KJ37E')
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
 interface Message {
   id: string
@@ -44,7 +49,22 @@ export default function BeautyAssistant() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Fetch products from database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/products')
+        const data = await res.json()
+        setProducts(data)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
+    }
+    fetchProducts()
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -67,93 +87,59 @@ export default function BeautyAssistant() {
     }
   }, [isOpen])
 
-  const getAIResponse = (userMessage: string): string => {
-    const msg = userMessage.toLowerCase()
+  const getAIResponse = async (userMessage: string): Promise<string> => {
+    try {
+      // Build products list from database
+      const productsList = products
+        .filter(p => p.inStock)
+        .map(p => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.description || p.category}`)
+        .join('\n')
 
-    // Greetings
-    if (msg.includes('مرحبا') || msg.includes('السلام') || msg.includes('هلا') || msg.includes('اهلا')) {
-      return BEAUTY_KNOWLEDGE.greetings[1]
-    }
+      // Create a beauty expert prompt
+      const prompt = `أنت خبيرة تجميل محترفة في متجر شادي للعناية بالبشرة والشعر في موريتانيا. 
+      
+المنتجات المتوفرة حالياً:
+${productsList}
 
-    // Skin types
-    if (msg.includes('جافة') || msg.includes('جفاف')) {
-      return BEAUTY_KNOWLEDGE.skinTypes.dry
-    }
-    if (msg.includes('دهنية') || msg.includes('دهون')) {
-      return BEAUTY_KNOWLEDGE.skinTypes.oily
-    }
-    if (msg.includes('مختلطة')) {
-      return BEAUTY_KNOWLEDGE.skinTypes.combination
-    }
-    if (msg.includes('حساسة')) {
-      return BEAUTY_KNOWLEDGE.skinTypes.sensitive
-    }
+معلومات الشحن:
+- شحن مجاني للطلبات فوق 1000 أوقية
+- التوصيل لجميع مدن موريتانيا
+- يستغرق 2-3 أيام
 
-    // Concerns
-    if (msg.includes('حب الشباب') || msg.includes('حبوب') || msg.includes('بثور')) {
-      return BEAUTY_KNOWLEDGE.concerns.acne
-    }
-    if (msg.includes('بقع') || msg.includes('تصبغات') || msg.includes('تفتيح')) {
-      return BEAUTY_KNOWLEDGE.concerns.darkSpots
-    }
-    if (msg.includes('تجاعيد') || msg.includes('خطوط') || msg.includes('شيخوخة')) {
-      return BEAUTY_KNOWLEDGE.concerns.wrinkles
-    }
-    if (msg.includes('جفاف') || msg.includes('ترطيب')) {
-      return BEAUTY_KNOWLEDGE.concerns.dryness
-    }
+أجيبي على السؤال التالي بطريقة ودودة ومفيدة باللغة العربية. 
+عند التوصية بمنتج، اذكري اسمه بالضبط كما هو في القائمة واذكر [ID:xxx] بجانبه حتى يمكن إضافة رابط له.
 
-    // Products
-    if (msg.includes('سيروم')) {
-      return BEAUTY_KNOWLEDGE.products.serum
-    }
-    if (msg.includes('مرطب')) {
-      return BEAUTY_KNOWLEDGE.products.moisturizer
-    }
-    if (msg.includes('واقي') || msg.includes('شمس')) {
-      return BEAUTY_KNOWLEDGE.products.sunscreen
-    }
-    if (msg.includes('ماسك') || msg.includes('قناع')) {
-      return BEAUTY_KNOWLEDGE.products.mask
-    }
+السؤال: ${userMessage}
 
-    // Routine
-    if (msg.includes('روتين') && msg.includes('صباح')) {
-      return BEAUTY_KNOWLEDGE.routine.morning
-    }
-    if (msg.includes('روتين') && (msg.includes('مساء') || msg.includes('ليل'))) {
-      return BEAUTY_KNOWLEDGE.routine.night
-    }
-    if (msg.includes('روتين')) {
-      return 'هل تريدين روتين الصباح أم المساء؟ 🌅🌙'
-    }
+الإجابة (بالعربية فقط، بشكل مختصر ومفيد):`;
 
-    // Product recommendations
-    if (msg.includes('أفضل منتج') || msg.includes('أنصحيني') || msg.includes('اقترحي')) {
-      return 'بالتأكيد! أخبريني عن نوع بشرتك (جافة، دهنية، مختلطة، حساسة) وسأقترح لك أفضل المنتجات! ✨'
+      const result = await model.generateContent(prompt)
+      const response = await result.response
+      let text = response.text()
+      
+      // Replace product IDs with clickable links
+      products.forEach(product => {
+        const idPattern = new RegExp(`\\[ID:${product.id}\\]`, 'g')
+        text = text.replace(idPattern, `[🔗 شاهد المنتج](/products/${product.id})`)
+      })
+      
+      return text || 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
+    } catch (error) {
+      console.error('Gemini AI Error:', error)
+      // Fallback to basic response
+      return 'شكراً لسؤالك! 💕 يمكنني مساعدتك في اختيار المنتجات المناسبة. أخبريني عن نوع بشرتك أو ما تبحثين عنه؟'
     }
-
-    // Price questions
-    if (msg.includes('سعر') || msg.includes('كم') || msg.includes('ثمن')) {
-      return 'يمكنك رؤية أسعار جميع المنتجات في صفحة المنتجات. لدينا عروض رائعة وشحن مجاني للطلبات فوق 1000 أوقية! 🎁'
-    }
-
-    // Shipping
-    if (msg.includes('توصيل') || msg.includes('شحن') || msg.includes('وصول')) {
-      return 'نوصل لجميع مدن موريتانيا! الشحن مجاني للطلبات فوق 1000 أوقية. التوصيل يستغرق 2-3 أيام. 📦✨'
-    }
-
-    // Default response
-    return 'شكراً لسؤالك! 💕 يمكنني مساعدتك في:\n\n✨ اختيار المنتجات المناسبة لنوع بشرتك\n🎯 حل مشاكل البشرة (حب الشباب، بقع، تجاعيد)\n📋 بناء روتين عناية كامل\n💡 نصائح استخدام المنتجات\n\nما الذي تحتاجين مساعدة فيه؟'
   }
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return
+
+    const userInput = inputValue
 
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue,
+      text: userInput,
       sender: 'user',
       timestamp: new Date(),
     }
@@ -161,17 +147,28 @@ export default function BeautyAssistant() {
     setInputValue('')
     setIsTyping(true)
 
-    // Simulate AI thinking and respond
-    setTimeout(() => {
+    // Get AI response
+    try {
+      const aiText = await getAIResponse(userInput)
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: getAIResponse(inputValue),
+        text: aiText,
         sender: 'assistant',
         timestamp: new Date(),
       }
       setMessages(prev => [...prev, aiResponse])
+    } catch (error) {
+      console.error('Error getting AI response:', error)
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.',
+        sender: 'assistant',
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsTyping(false)
-    }, 1000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -239,7 +236,27 @@ export default function BeautyAssistant() {
                       : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-bl-none shadow-md'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-line">{message.text}</p>
+                  <div className="text-sm whitespace-pre-line">
+                    {message.text.split(/(\[🔗 شاهد المنتج\]\(\/products\/[^\)]+\))/).map((part, i) => {
+                      const linkMatch = part.match(/\[🔗 شاهد المنتج\]\((\/products\/[^\)]+)\)/)
+                      if (linkMatch) {
+                        return (
+                          <a
+                            key={i}
+                            href={linkMatch[1]}
+                            className="inline-flex items-center gap-1 bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs font-bold transition-colors mx-1"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              window.location.href = linkMatch[1]
+                            }}
+                          >
+                            🔗 شاهد المنتج
+                          </a>
+                        )
+                      }
+                      return <span key={i}>{part}</span>
+                    })}
+                  </div>
                   <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-white/70' : 'text-gray-400'}`}>
                     {message.timestamp.toLocaleTimeString('ar-MR', { hour: '2-digit', minute: '2-digit' })}
                   </p>
