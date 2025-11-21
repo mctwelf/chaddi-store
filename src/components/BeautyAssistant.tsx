@@ -89,11 +89,22 @@ export default function BeautyAssistant() {
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
+      console.log('🤖 Getting AI response for:', userMessage)
+      console.log('📦 Products loaded:', products.length)
+      
+      // Check if products are loaded
+      if (products.length === 0) {
+        console.warn('⚠️ No products loaded yet')
+        return 'جاري تحميل المنتجات... يرجى المحاولة مرة أخرى بعد ثانية.'
+      }
+
       // Build products list from database
       const productsList = products
         .filter(p => p.inStock)
         .map(p => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.description || p.category}`)
         .join('\n')
+
+      console.log('📝 Products list prepared:', productsList.substring(0, 100))
 
       // Create a beauty expert prompt
       const prompt = `أنت خبيرة تجميل محترفة في متجر شادي للعناية بالبشرة والشعر في موريتانيا. 
@@ -113,9 +124,14 @@ ${productsList}
 
 الإجابة (بالعربية فقط، بشكل مختصر ومفيد):`;
 
+      console.log('🚀 Calling Gemini API...')
       const result = await model.generateContent(prompt)
+      console.log('✅ Gemini API responded')
+      
       const response = await result.response
       let text = response.text()
+      
+      console.log('📄 AI Response:', text.substring(0, 100))
       
       // Replace product IDs with clickable links
       products.forEach(product => {
@@ -124,8 +140,10 @@ ${productsList}
       })
       
       return text || 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
-    } catch (error) {
-      console.error('Gemini AI Error:', error)
+    } catch (error: any) {
+      console.error('❌ Gemini AI Error:', error)
+      console.error('Error details:', error?.message, error?.status)
+      
       // Fallback to basic response
       return 'شكراً لسؤالك! 💕 يمكنني مساعدتك في اختيار المنتجات المناسبة. أخبريني عن نوع بشرتك أو ما تبحثين عنه؟'
     }
