@@ -56,7 +56,19 @@ export default function ProductsPage() {
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (product.description || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || product.category?.toLowerCase().includes(selectedCategory.toLowerCase())
+    
+    // Match category by name, name_ar, or category_id
+    let matchesCategory = selectedCategory === 'all'
+    if (!matchesCategory) {
+      const categoryLower = product.category?.toLowerCase() || ''
+      const selectedLower = selectedCategory.toLowerCase()
+      const selectedCat = categories.find(c => c.name === selectedCategory)
+      
+      matchesCategory = categoryLower.includes(selectedLower) || 
+                       categoryLower.includes(selectedCat?.name_ar?.toLowerCase() || '') ||
+                       product.category_id === selectedCat?.id
+    }
+    
     return matchesSearch && matchesCategory
   })
 

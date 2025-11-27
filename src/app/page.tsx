@@ -63,7 +63,19 @@ export default function Home() {
 
   const filteredProducts = selectedCategory === 'all' 
     ? products 
-    : products.filter(p => p.category?.toLowerCase().includes(selectedCategory))
+    : products.filter(p => {
+        // Match by category name or category_id
+        const categoryLower = p.category?.toLowerCase() || ''
+        const selectedLower = selectedCategory.toLowerCase()
+        
+        // Try to find the selected category
+        const selectedCat = categories.find(c => c.name === selectedCategory)
+        
+        // Match by name, name_ar, or if product.category_id matches
+        return categoryLower.includes(selectedLower) || 
+               categoryLower.includes(selectedCat?.name_ar?.toLowerCase() || '') ||
+               p.category_id === selectedCat?.id
+      })
 
   return (
     <div className="min-h-screen dark:bg-gray-900">
