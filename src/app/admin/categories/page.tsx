@@ -18,8 +18,8 @@ export default function CategoriesAdmin() {
   const [formData, setFormData] = useState<Category>({
     name: '',
     name_ar: '',
-    icon: 'Package',
-    display_order: 0,
+    icon: 'Sparkles',
+    display_order: categories.length,
   })
 
   const availableIcons = [
@@ -48,20 +48,34 @@ export default function CategoriesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Auto-generate English name from Arabic name
+    const englishName = formData.name_ar
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+    
+    const categoryData = {
+      name: englishName || `category-${Date.now()}`,
+      name_ar: formData.name_ar,
+      icon: 'Sparkles',
+      display_order: categories.length,
+    }
+    
     try {
       const res = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(categoryData),
       })
 
       if (res.ok) {
         await fetchCategories()
         setIsAdding(false)
-        setFormData({ name: '', name_ar: '', icon: 'Package', display_order: 0 })
+        setFormData({ name: '', name_ar: '', icon: 'Sparkles', display_order: 0 })
         alert('تم إضافة التصنيف بنجاح!')
       } else {
-        alert('فشل في إضافة التصنيف')
+        const error = await res.json()
+        alert('فشل في إضافة التصنيف: ' + (error.error || 'خطأ غير معروف'))
       }
     } catch (error) {
       console.error('Error adding category:', error)
@@ -129,64 +143,22 @@ export default function CategoriesAdmin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    الاسم بالإنجليزية
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="skincare"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:bg-gray-700 dark:text-white"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    الاسم بالعربية
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name_ar}
-                    onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                    placeholder="العناية بالبشرة"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:bg-gray-700 dark:text-white text-right"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    الأيقونة
-                  </label>
-                  <select
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:bg-gray-700 dark:text-white"
-                  >
-                    {availableIcons.map((icon) => (
-                      <option key={icon.name} value={icon.name}>
-                        {icon.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                    ترتيب العرض
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.display_order}
-                    onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:bg-gray-700 dark:text-white"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                  اسم التصنيف
+                </label>
+                <input
+                  type="text"
+                  value={formData.name_ar}
+                  onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                  placeholder="مثال: العطور، الإكسسوارات، العناية بالأظافر"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:bg-gray-700 dark:text-white text-right text-lg"
+                  required
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  سيتم إنشاء التصنيف تلقائياً بأيقونة افتراضية
+                </p>
               </div>
 
               <div className="flex gap-3 justify-end">
@@ -221,19 +193,11 @@ export default function CategoriesAdmin() {
                 key={category.id}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all p-6 border border-gray-200 dark:border-gray-700"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-lg">
-                      <IconComponent className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">{category.name_ar}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{category.name}</p>
-                    </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-lg">
+                    <IconComponent className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
-                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-bold">
-                    #{category.display_order}
-                  </span>
+                  <h3 className="font-bold text-xl text-gray-900 dark:text-white">{category.name_ar}</h3>
                 </div>
 
                 <div className="flex gap-2">

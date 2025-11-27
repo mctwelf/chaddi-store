@@ -46,9 +46,9 @@ ON categories FOR SELECT
 TO public
 USING (true);
 
--- Create policy to allow authenticated users to insert/update (for admin)
-CREATE POLICY "Allow authenticated users to manage categories"
+-- Create policy to allow anyone to insert/update/delete (for admin without auth)
+CREATE POLICY "Allow public to manage categories"
 ON categories FOR ALL
-TO authenticated
+TO public
 USING (true)
 WITH CHECK (true);
