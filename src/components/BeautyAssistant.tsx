@@ -112,10 +112,23 @@ export default function BeautyAssistant() {
       console.log('🤖 Getting AI response for:', userMessage)
       console.log('📦 Products loaded:', products.length)
       
-      // Check if products are loaded
+      // Wait for products to load if not loaded yet
       if (products.length === 0) {
-        console.warn('⚠️ No products loaded yet')
-        return 'جاري تحميل المنتجات... يرجى المحاولة مرة أخرى بعد ثانية.'
+        console.warn('⚠️ Products not loaded, waiting...')
+        
+        // Wait up to 5 seconds for products to load
+        let attempts = 0
+        while (products.length === 0 && attempts < 10) {
+          await new Promise(resolve => setTimeout(resolve, 500))
+          attempts++
+        }
+        
+        if (products.length === 0) {
+          console.error('❌ Products failed to load')
+          return 'عذراً، حدث خطأ في تحميل المنتجات. يرجى تحديث الصفحة والمحاولة مرة أخرى.'
+        }
+        
+        console.log('✅ Products loaded after waiting:', products.length)
       }
 
       console.log('🚀 Calling AI API...')
@@ -141,7 +154,9 @@ export default function BeautyAssistant() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to get AI response')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', response.status, errorData)
+        throw new Error(`API Error: ${response.status}`)
       }
 
       const data = await response.json()
