@@ -1,7 +1,10 @@
 import Link from 'next/link'
-import { Sparkles, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react'
+import { Sparkles, Facebook, Instagram, Twitter, Mail, Phone, MapPin, MessageCircle } from 'lucide-react'
 
 export default function Footer() {
+  const FACEBOOK_PAGE_URL = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_URL || 'https://facebook.com/your-page'
+  const FACEBOOK_PAGE_ID = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID || 'your-page-id'
+  
   return (
     <footer className="bg-gradient-to-br from-primary-900 to-primary-800 text-white mt-20">
       <div className="container mx-auto px-4 py-12">
@@ -77,8 +80,23 @@ export default function Footer() {
 
             {/* Social Media */}
             <div className="flex gap-3 mt-4">
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+              <a 
+                href={FACEBOOK_PAGE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors"
+                title="تابعنا على فيسبوك"
+              >
                 <Facebook className="w-5 h-5" />
+              </a>
+              <a 
+                href={`https://m.me/${FACEBOOK_PAGE_ID}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors"
+                title="راسلنا على Messenger"
+              >
+                <MessageCircle className="w-5 h-5" />
               </a>
               <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
                 <Instagram className="w-5 h-5" />
@@ -92,6 +110,17 @@ export default function Footer() {
 
         <div className="border-t border-primary-700 mt-8 pt-8 text-center text-primary-200">
           <p>© 2024 شادي. جميع الحقوق محفوظة.</p>
+          <p className="mt-2 text-sm">
+            <a 
+              href={FACEBOOK_PAGE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors inline-flex items-center gap-2"
+            >
+              <Facebook className="w-4 h-4" />
+              تابعنا على فيسبوك للعروض الحصرية
+            </a>
+          </p>
         </div>
       </div>
     </footer>

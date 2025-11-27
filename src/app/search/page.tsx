@@ -44,22 +44,40 @@ export default function VisualSearchPage() {
     setError(null)
 
     try {
-      // For now, we'll do a simple search by fetching all products
-      // In a real implementation, you would use an AI service like:
-      // - Google Cloud Vision API
-      // - AWS Rekognition
-      // - OpenAI CLIP
-      // - Custom ML model
+      // Call our visual search API with Google Cloud Vision
+      const res = await fetch('/api/visual-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: selectedImage })
+      })
       
-      const res = await fetch('/api/products')
-      const allProducts = await res.json()
+      if (!res.ok) {
+        throw new Error('Search failed')
+      }
       
-      // Simulate AI search - in production, you'd send the image to an AI service
-      // For now, return random products as "similar"
-      const shuffled = allProducts.sort(() => 0.5 - Math.random())
-      const similarProducts = shuffled.slice(0, 8)
+      const data = await res.json()
       
-      setResults(similarProducts)
+      if (data.error && !data.products) {
+        setError('فشل البحث. يرجى المحاولة مرة أخرى.')
+        return
+      }
+      
+      setResults(data.products || [])
+      
+      // Show message if using fallback or no matches
+      if (data.fallback) {
+        setError('لم نتمكن من تحليل الصورة. نعرض لك منتجات عشوائية.')
+      } else if (data.matchCount === 0) {
+        setError('لم نجد منتجات مطابقة تماماً. نعرض لك منتجات مشابهة.')
+      } else if (data.products.length === 0) {
+        setError('لم نجد منتجات مشابهة. جربي صورة أخرى.')
+      }
+      
+      // Log detected labels for debugging
+      if (data.labels && data.labels.length > 0) {
+        console.log('Detected labels:', data.labels)
+      }
+      
     } catch (error) {
       console.error('Search error:', error)
       setError('حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.')
