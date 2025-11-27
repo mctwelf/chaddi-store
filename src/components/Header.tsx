@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingCart, Menu, X, Moon, Sun, Sparkles, Package, Scissors, Heart, Droplet, ShoppingBag } from 'lucide-react'
+import { ShoppingCart, Menu, X, Moon, Sun, Sparkles, Package, Scissors, Heart, Droplet, ShoppingBag, Camera } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { useTheme } from '@/context/ThemeContext'
 import { useState, useEffect } from 'react'
@@ -82,8 +82,15 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Cart, Dark Mode & Mobile Menu */}
+          {/* Cart, Dark Mode, Visual Search & Mobile Menu */}
           <div className="flex items-center gap-4">
+            {/* Visual Search */}
+            <Link href="/search" className="group hidden md:block">
+              <div className="bg-accent-50 dark:bg-accent-900/20 p-3 rounded-full group-hover:bg-accent-100 dark:group-hover:bg-accent-900/40 transition-colors">
+                <Camera className="w-6 h-6 text-accent-600 dark:text-accent-400" />
+              </div>
+            </Link>
+
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
@@ -187,6 +194,14 @@ export default function Header() {
                 </div>
               )}
 
+              <Link
+                href="/search"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center gap-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white font-bold transition-colors p-4 rounded-lg shadow-lg hover:shadow-xl"
+              >
+                <Camera className="w-5 h-5" />
+                <span className="text-lg">البحث بالصورة</span>
+              </Link>
               <Link
                 href="/assistant"
                 onClick={() => setIsMenuOpen(false)}
