@@ -68,15 +68,21 @@ export default function Home() {
   return (
     <div className="min-h-screen dark:bg-gray-900">
       {/* Hero Section - Mobile Optimized */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600 dark:from-primary-700 dark:to-primary-800 py-12 md:py-20">
-        <div className="container mx-auto px-4">
-          <div className={`text-center space-y-4 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-block">
-              <span className="bg-white/20 text-white px-4 py-1.5 rounded-full text-xs md:text-sm font-bold">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-500 via-primary-600 to-accent-500 dark:from-primary-700 dark:to-primary-800 py-16 md:py-24">
+        {/* Animated Background */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-white rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className={`text-center space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-block animate-bounce">
+              <span className="bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm md:text-base font-bold shadow-lg">
                 ✨ عروض حصرية حتى 50%
               </span>
             </div>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-lg">
               جمالك يبدأ من هنا
             </h1>
             <p className="text-sm md:text-lg text-white/90 max-w-xl mx-auto">
@@ -102,24 +108,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories - Mobile Optimized */}
-      <section className="py-6 bg-white dark:bg-gray-900 sticky top-0 z-40 shadow-md">
+      {/* Categories - Mobile Optimized with Smooth Scroll */}
+      <section className="py-4 md:py-6 bg-white dark:bg-gray-900 sticky top-0 z-40 shadow-lg backdrop-blur-sm bg-white/95 dark:bg-gray-900/95">
         <div className="container mx-auto px-4">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => {
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth">
+            {categories.map((cat, index) => {
               const Icon = iconMap[cat.icon] || Package
               return (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.name)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl whitespace-nowrap transition-all duration-300 snap-start ${
                     selectedCategory === cat.name
-                      ? 'bg-primary-600 text-white shadow-lg scale-105'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-xl scale-105 ring-2 ring-primary-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105 active:scale-95'
                   }`}
+                  style={{
+                    animationDelay: `${index * 100}ms`
+                  }}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-sm font-bold">{cat.name_ar}</span>
+                  <Icon className="w-5 h-5" />
+                  <span className="text-sm md:text-base font-bold">{cat.name_ar}</span>
                 </button>
               )
             })}

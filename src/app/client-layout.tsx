@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import BackToTop from '@/components/BackToTop'
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -15,6 +16,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       {!isAssistantPage && <Footer />}
+      {!isAssistantPage && <BackToTop />}
     </>
   )
 }

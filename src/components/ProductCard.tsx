@@ -36,21 +36,25 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden card-hover group h-full flex flex-col">
-        <div className="relative overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden card-hover group h-full flex flex-col transform transition-all duration-300 hover:shadow-2xl active:scale-95">
+        <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700">
           <img
             src={product.image}
             alt={product.name}
             className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500"
+            loading="lazy"
           />
+          {/* Gradient Overlay on Hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
           {discount > 0 && (
-            <div className="absolute top-2 left-2 bg-accent-500 text-white px-2 py-0.5 rounded-full text-xs font-bold shadow-lg">
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white px-3 py-1 rounded-full text-xs md:text-sm font-bold shadow-xl animate-pulse">
               -{discount}%
             </div>
           )}
           {!product.inStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-3 py-1 rounded-full text-xs font-bold">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              <span className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl">
                 غير متوفر
               </span>
             </div>
@@ -73,14 +77,14 @@ export default function ProductCard({ product }: { product: Product }) {
           <button
             onClick={handleAddToCart}
             disabled={!product.inStock}
-            className={`w-full py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-1 ${
+            className={`w-full py-2.5 md:py-3 rounded-xl text-sm md:text-base font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               product.inStock
-                ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-lg active:scale-95'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg'
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
             }`}
           >
-            <ShoppingCart className="w-4 h-4" />
-            {product.inStock ? 'أضف' : 'غير متوفر'}
+            <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+            {product.inStock ? 'أضف للسلة' : 'غير متوفر'}
           </button>
         </div>
       </div>
