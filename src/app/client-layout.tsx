@@ -1,16 +1,20 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isAssistantPage = pathname === '/assistant'
+
   return (
     <>
-      <Header />
-      <main className="min-h-screen">
+      {!isAssistantPage && <Header />}
+      <main className={isAssistantPage ? '' : 'min-h-screen'}>
         {children}
       </main>
-      <Footer />
+      {!isAssistantPage && <Footer />}
     </>
   )
 }

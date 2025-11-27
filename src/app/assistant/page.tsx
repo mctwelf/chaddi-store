@@ -187,24 +187,33 @@ export default function AssistantPage() {
   }
 
   const parseMessageWithLinks = (text: string) => {
-    const parts = text.split(/(\[🔗 شاهد المنتج\]\(\/products\/\d+\))/)
+    // Match both numeric IDs and UUIDs
+    const parts = text.split(/(\[🔗 شاهد المنتج\]\(\/products\/[a-zA-Z0-9-]+\))/)
     
     return parts.map((part, index) => {
-      const linkMatch = part.match(/\[🔗 شاهد المنتج\]\((\/products\/(\d+))\)/)
+      // Match both numeric IDs and UUIDs
+      const linkMatch = part.match(/\[🔗 شاهد المنتج\]\((\/products\/([a-zA-Z0-9-]+))\)/)
       if (linkMatch) {
         const productId = linkMatch[2]
-        const product = productsRef.current?.find(p => p.id === parseInt(productId))
+        // Try to find product by id or _id (both string and number)
+        const product = productsRef.current?.find(p => 
+          p.id === productId || 
+          p._id === productId || 
+          p.id === parseInt(productId) ||
+          String(p.id) === productId ||
+          String(p._id) === productId
+        )
         
         if (product) {
           return (
             <Link
               key={index}
               href={linkMatch[1]}
-              className="block my-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-primary-200 dark:border-primary-700 hover:border-primary-400"
+              className="block my-4 bg-gradient-to-br from-white to-primary-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-primary-300 dark:border-primary-600 hover:border-primary-500 hover:scale-[1.02]"
             >
-              <div className="flex gap-3 p-3">
+              <div className="flex gap-4 p-4">
                 {/* Product Image */}
-                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <div className="w-28 h-28 flex-shrink-0 bg-white dark:bg-gray-600 rounded-xl overflow-hidden shadow-md">
                   <img 
                     src={product.image} 
                     alt={product.name}
@@ -214,26 +223,30 @@ export default function AssistantPage() {
                 
                 {/* Product Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2">
+                  <h3 className="font-bold text-gray-900 dark:text-white text-base mb-2 line-clamp-2 leading-tight">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                    {product.category}
-                  </p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full font-semibold">
+                      {product.category}
+                    </span>
+                  </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
-                        {product.price} أوقية
+                      <span className="text-xl font-black text-primary-600 dark:text-primary-400">
+                        {product.price}
                       </span>
-                      {product.originalPrice > product.price && (
-                        <span className="text-xs text-gray-400 line-through">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">أوقية</span>
+                      {product.originalPrice && product.originalPrice > product.price && (
+                        <span className="text-sm text-gray-400 line-through">
                           {product.originalPrice}
                         </span>
                       )}
                     </div>
-                    <span className="text-xs bg-primary-600 text-white px-3 py-1 rounded-full font-bold">
-                      شاهد المنتج ←
-                    </span>
+                    <div className="bg-primary-600 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg flex items-center gap-2">
+                      <span>عرض المنتج</span>
+                      <span>←</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -241,13 +254,14 @@ export default function AssistantPage() {
           )
         }
         
+        // Fallback if product not found
         return (
           <Link
             key={index}
             href={linkMatch[1]}
-            className="inline-block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 hover:scale-105 shadow-md my-1"
+            className="inline-block bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white px-5 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-105 shadow-lg my-2"
           >
-            🔗 شاهد المنتج
+            🔗 عرض المنتج
           </Link>
         )
       }

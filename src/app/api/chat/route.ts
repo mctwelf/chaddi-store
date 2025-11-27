@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    // Build products list
+    // Build products list (use id or _id)
     const productsList = products
       .filter((p: any) => p.inStock)
-      .map((p: any) => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.category}`)
+      .map((p: any) => `- ${p.name} (${p.price} أوقية) [ID:${p.id || p._id}] - ${p.category}`)
       .join('\n')
 
     // Create a beauty expert prompt with detailed instructions
@@ -59,10 +59,11 @@ ${productsList}
     const response = await result.response
     let text = response.text()
 
-    // Replace product IDs with clickable links
+    // Replace product IDs with clickable links (support both id and _id)
     products.forEach((product: any) => {
-      const idPattern = new RegExp(`\\[ID:${product.id}\\]`, 'g')
-      text = text.replace(idPattern, `[🔗 شاهد المنتج](/products/${product.id})`)
+      const productId = product.id || product._id
+      const idPattern = new RegExp(`\\[ID:${productId}\\]`, 'g')
+      text = text.replace(idPattern, `[🔗 شاهد المنتج](/products/${productId})`)
     })
 
     return NextResponse.json({ response: text })
