@@ -1,13 +1,14 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Star, ShoppingCart, Heart, Share2, ArrowRight } from 'lucide-react'
+import { Star, ShoppingCart, Heart, Share2, ArrowRight, Zap } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 
 export default function ProductDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
   const { addToCart } = useCart()
   
@@ -83,6 +84,18 @@ export default function ProductDetailPage() {
     })
   }
 
+  const handleBuyNow = () => {
+    // Add to cart first
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    })
+    // Then redirect to checkout
+    router.push('/checkout')
+  }
+
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
@@ -148,13 +161,28 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Buy Now Button - Primary */}
+            <button
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className={`w-full py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${
+                product.inStock
+                  ? 'bg-gradient-to-r from-accent-500 to-accent-600 text-white hover:shadow-xl hover:scale-105'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <Zap className="w-6 h-6" />
+              {product.inStock ? 'اشتر الآن' : 'غير متوفر'}
+            </button>
+
+            {/* Add to Cart & Actions */}
             <div className="flex gap-4">
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock}
                 className={`flex-1 py-4 rounded-full font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${
                   product.inStock
-                    ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-xl hover:scale-105'
+                    ? 'bg-white border-2 border-primary-600 text-primary-600 hover:bg-primary-50'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >

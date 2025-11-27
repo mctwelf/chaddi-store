@@ -5,25 +5,18 @@ import { useRouter } from 'next/navigation'
 import { ArrowRight, Upload, Save } from 'lucide-react'
 import Link from 'next/link'
 
-const CATEGORIES = [
-  'العناية بالبشرة',
-  'العناية بالشعر',
-  'المكياج',
-  'العطور',
-  'العناية بالجسم',
-  'أدوات التجميل',
-]
-
 export default function AddProduct() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [categories, setCategories] = useState<any[]>([])
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     originalPrice: '',
     category: '',
+    category_id: '',
     image: '',
     images: [] as string[], // Multiple images
     rating: '0',
@@ -31,6 +24,22 @@ export default function AddProduct() {
     inStock: true,
     featured: false,
   })
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories')
+      const data = await res.json()
+      // Filter out 'all' category
+      const filtered = Array.isArray(data) ? data.filter((c: any) => c.name !== 'all') : []
+      setCategories(filtered)
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -232,17 +241,29 @@ export default function AddProduct() {
             </label>
             <select
               required
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              value={formData.category_id}
+              onChange={(e) => {
+                const selectedCategory = categories.find(c => c.id === e.target.value)
+                setFormData({ 
+                  ...formData, 
+                  category_id: e.target.value,
+                  category: selectedCategory?.name_ar || ''
+                })
+              }}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-400 focus:outline-none"
             >
               <option value="">اختر التصنيف</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+              {categories.map((cat: any) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name_ar}
                 </option>
               ))}
             </select>
+            {categories.length === 0 && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                لا توجد تصنيفات. <Link href="/admin/categories" className="text-primary-600 hover:underline">أضف تصنيفاً أولاً</Link>
+              </p>
+            )}
           </div>
 
           {/* Image Upload */}
