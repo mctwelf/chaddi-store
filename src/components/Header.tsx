@@ -2,15 +2,41 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingCart, Menu, X, Moon, Sun, Sparkles } from 'lucide-react'
+import { ShoppingCart, Menu, X, Moon, Sun, Sparkles, Package, Scissors, Heart, Droplet, ShoppingBag } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { useTheme } from '@/context/ThemeContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Header() {
   const { cartCount } = useCart()
   const { isDark, toggleTheme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [categories, setCategories] = useState<any[]>([])
+
+  const iconMap: any = {
+    Package,
+    Sparkles,
+    Scissors,
+    Heart,
+    Droplet,
+    ShoppingBag,
+  }
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      fetchCategories()
+    }
+  }, [isMenuOpen])
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories')
+      const data = await res.json()
+      setCategories(Array.isArray(data) ? data.filter((c: any) => c.name !== 'all') : [])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   return (
     <header className="bg-white/80 dark:bg-gray-900/95 backdrop-blur-md shadow-md sticky top-0 z-50 transition-colors">
@@ -124,7 +150,7 @@ export default function Header() {
             </div>
 
             {/* Drawer Links */}
-            <nav className="p-6 flex flex-col gap-4">
+            <nav className="p-6 flex flex-col gap-4 overflow-y-auto">
               <Link
                 href="/"
                 onClick={() => setIsMenuOpen(false)}
@@ -139,6 +165,28 @@ export default function Header() {
               >
                 <span className="text-lg">المنتجات</span>
               </Link>
+
+              {/* Categories Section */}
+              {categories.length > 0 && (
+                <div className="border-t border-b border-gray-200 dark:border-gray-700 py-3 my-2">
+                  <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 px-3 mb-2">التصنيفات</h3>
+                  {categories.map((cat) => {
+                    const Icon = iconMap[cat.icon] || Package
+                    return (
+                      <Link
+                        key={cat.id}
+                        href={`/products?category=${cat.name}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors p-3 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-800"
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-base">{cat.name_ar}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
               <Link
                 href="/assistant"
                 onClick={() => setIsMenuOpen(false)}

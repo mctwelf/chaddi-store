@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, Phone, MapPin, Calendar, CheckCircle, Clock, Truck, XCircle, Search, TrendingUp, DollarSign, ShoppingBag, LogOut, Plus } from 'lucide-react'
+import { Package, Phone, MapPin, Calendar, CheckCircle, Clock, Truck, XCircle, Search, TrendingUp, DollarSign, ShoppingBag, LogOut, Plus, FolderTree } from 'lucide-react'
 import Link from 'next/link'
 
 interface Order {
@@ -187,6 +187,13 @@ export default function AdminDashboard() {
             >
               <Package className="w-5 h-5" />
               المنتجات
+            </Link>
+            <Link 
+              href="/admin/categories"
+              className="btn-secondary flex items-center gap-2"
+            >
+              <FolderTree className="w-5 h-5" />
+              التصنيفات
             </Link>
             <Link 
               href="/"
