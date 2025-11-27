@@ -114,20 +114,20 @@ export default function BeautyAssistant() {
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
       console.log('🤖 Getting AI response for:', userMessage)
-      console.log('📦 Products loaded:', productsRef.current.length)
+      console.log('📦 Products loaded:', productsRef.current?.length || 0)
       
       // Wait for products to load if not loaded yet
-      if (productsRef.current.length === 0) {
+      if (!productsRef.current || productsRef.current.length === 0) {
         console.warn('⚠️ Products not loaded, waiting...')
         
         // Wait up to 5 seconds for products to load
         let attempts = 0
-        while (productsRef.current.length === 0 && attempts < 10) {
+        while ((!productsRef.current || productsRef.current.length === 0) && attempts < 10) {
           await new Promise(resolve => setTimeout(resolve, 500))
           attempts++
         }
         
-        if (productsRef.current.length === 0) {
+        if (!productsRef.current || productsRef.current.length === 0) {
           console.error('❌ Products failed to load')
           return 'عذراً، حدث خطأ في تحميل المنتجات. يرجى تحديث الصفحة والمحاولة مرة أخرى.'
         }
@@ -138,7 +138,7 @@ export default function BeautyAssistant() {
       console.log('🚀 Calling AI API...')
       
       // Send only essential product data to avoid 413 error
-      const productData = productsRef.current.map(p => ({
+      const productData = (productsRef.current || []).map(p => ({
         id: p.id,
         name: p.name,
         price: p.price,
