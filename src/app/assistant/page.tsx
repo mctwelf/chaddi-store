@@ -341,7 +341,7 @@ export default function AssistantPage() {
         </div>
       </div>
 
-      {/* Input - Fixed at bottom */}
+      {/* Input - Fixed at bottom, nothing below */}
       <div className="bg-white dark:bg-gray-800 border-t-2 border-primary-200 dark:border-primary-700 p-4 shadow-2xl flex-shrink-0">
         <div className="container mx-auto max-w-4xl">
           <div className="flex gap-3 items-center">
@@ -363,9 +363,6 @@ export default function AssistantPage() {
               autoFocus
             />
           </div>
-          <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
-            اضغطي Enter للإرسال • خبيرة شادي جاهزة لمساعدتك ✨
-          </p>
         </div>
       </div>
     </div>
