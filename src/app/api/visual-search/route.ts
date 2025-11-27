@@ -8,11 +8,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 })
     }
 
+    // Get base URL for API calls
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                    'http://localhost:3000'
+
     // Check if Vision API key is set
     if (!process.env.GOOGLE_VISION_API_KEY) {
       console.error('GOOGLE_VISION_API_KEY is not set')
       // Fallback to random products if no API key
-      const productsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`)
+      const productsRes = await fetch(`${baseUrl}/api/products`)
       const allProducts = await productsRes.json()
       const shuffled = allProducts.sort(() => 0.5 - Math.random())
       return NextResponse.json({ 
@@ -63,7 +68,7 @@ export async function POST(request: Request) {
     console.log('Vision API detected:', keywords)
     
     // Get all products
-    const productsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`)
+    const productsRes = await fetch(`${baseUrl}/api/products`)
     const allProducts = await productsRes.json()
     
     // Match products based on detected labels
@@ -131,7 +136,10 @@ export async function POST(request: Request) {
     
     // Fallback to random products on error
     try {
-      const productsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`)
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                      'http://localhost:3000'
+      const productsRes = await fetch(`${baseUrl}/api/products`)
       const allProducts = await productsRes.json()
       const shuffled = allProducts.sort(() => 0.5 - Math.random())
       return NextResponse.json({ 
