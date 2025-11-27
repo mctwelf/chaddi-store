@@ -45,6 +45,7 @@ export default function BeautyAssistant() {
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [products, setProducts] = useState<any[]>([])
+  const productsRef = useRef<any[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Load chat history from localStorage
@@ -76,11 +77,14 @@ export default function BeautyAssistant() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log('🔄 Fetching products...')
         const res = await fetch('/api/products')
         const data = await res.json()
+        console.log('✅ Products fetched:', data.length)
         setProducts(data)
+        productsRef.current = data
       } catch (error) {
-        console.error('Error fetching products:', error)
+        console.error('❌ Error fetching products:', error)
       }
     }
     fetchProducts()
@@ -110,31 +114,31 @@ export default function BeautyAssistant() {
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
       console.log('🤖 Getting AI response for:', userMessage)
-      console.log('📦 Products loaded:', products.length)
+      console.log('📦 Products loaded:', productsRef.current.length)
       
       // Wait for products to load if not loaded yet
-      if (products.length === 0) {
+      if (productsRef.current.length === 0) {
         console.warn('⚠️ Products not loaded, waiting...')
         
         // Wait up to 5 seconds for products to load
         let attempts = 0
-        while (products.length === 0 && attempts < 10) {
+        while (productsRef.current.length === 0 && attempts < 10) {
           await new Promise(resolve => setTimeout(resolve, 500))
           attempts++
         }
         
-        if (products.length === 0) {
+        if (productsRef.current.length === 0) {
           console.error('❌ Products failed to load')
           return 'عذراً، حدث خطأ في تحميل المنتجات. يرجى تحديث الصفحة والمحاولة مرة أخرى.'
         }
         
-        console.log('✅ Products loaded after waiting:', products.length)
+        console.log('✅ Products loaded after waiting:', productsRef.current.length)
       }
 
       console.log('🚀 Calling AI API...')
       
       // Send only essential product data to avoid 413 error
-      const productData = products.map(p => ({
+      const productData = productsRef.current.map(p => ({
         id: p.id,
         name: p.name,
         price: p.price,
