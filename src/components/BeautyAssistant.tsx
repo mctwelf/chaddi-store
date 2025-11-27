@@ -2,11 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Sparkles, Bot, Trash2 } from 'lucide-react'
-import { GoogleGenerativeAI } from '@google/generative-ai'
-
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI('AIzaSyDXW53LMx8No7H2orlAmIgh3CPfV0KJ37E')
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
 interface Message {
   id: string
@@ -123,51 +118,29 @@ export default function BeautyAssistant() {
         return 'جاري تحميل المنتجات... يرجى المحاولة مرة أخرى بعد ثانية.'
       }
 
-      // Build products list from database
-      const productsList = products
-        .filter(p => p.inStock)
-        .map(p => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.description || p.category}`)
-        .join('\n')
-
-      console.log('📝 Products list prepared:', productsList.substring(0, 100))
-
-      // Create a beauty expert prompt
-      const prompt = `أنت خبيرة تجميل محترفة في متجر شادي للعناية بالبشرة والشعر في موريتانيا. 
-      
-المنتجات المتوفرة حالياً:
-${productsList}
-
-معلومات الشحن:
-- شحن مجاني للطلبات فوق 1000 أوقية
-- التوصيل لجميع مدن موريتانيا
-- يستغرق 2-3 أيام
-
-أجيبي على السؤال التالي بطريقة ودودة ومفيدة باللغة العربية. 
-عند التوصية بمنتج، اذكري اسمه بالضبط كما هو في القائمة واذكر [ID:xxx] بجانبه حتى يمكن إضافة رابط له.
-
-السؤال: ${userMessage}
-
-الإجابة (بالعربية فقط، بشكل مختصر ومفيد):`;
-
-      console.log('🚀 Calling Gemini API...')
-      const result = await model.generateContent(prompt)
-      console.log('✅ Gemini API responded')
-      
-      const response = await result.response
-      let text = response.text()
-      
-      console.log('📄 AI Response:', text.substring(0, 100))
-      
-      // Replace product IDs with clickable links
-      products.forEach(product => {
-        const idPattern = new RegExp(`\\[ID:${product.id}\\]`, 'g')
-        text = text.replace(idPattern, `[🔗 شاهد المنتج](/products/${product.id})`)
+      console.log('🚀 Calling AI API...')
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          products: products,
+        }),
       })
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response')
+      }
+
+      const data = await response.json()
+      console.log('✅ AI API responded')
       
-      return text || 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
+      return data.response || 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
     } catch (error: any) {
-      console.error('❌ Gemini AI Error:', error)
-      console.error('Error details:', error?.message, error?.status)
+      console.error('❌ AI Error:', error)
+      console.error('Error details:', error?.message)
       
       // Fallback to basic response
       return 'شكراً لسؤالك! 💕 يمكنني مساعدتك في اختيار المنتجات المناسبة. أخبريني عن نوع بشرتك أو ما تبحثين عنه؟'
