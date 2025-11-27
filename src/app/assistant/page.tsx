@@ -190,8 +190,57 @@ export default function AssistantPage() {
     const parts = text.split(/(\[🔗 شاهد المنتج\]\(\/products\/\d+\))/)
     
     return parts.map((part, index) => {
-      const linkMatch = part.match(/\[🔗 شاهد المنتج\]\((\/products\/\d+)\)/)
+      const linkMatch = part.match(/\[🔗 شاهد المنتج\]\((\/products\/(\d+))\)/)
       if (linkMatch) {
+        const productId = linkMatch[2]
+        const product = productsRef.current?.find(p => p.id === parseInt(productId))
+        
+        if (product) {
+          return (
+            <Link
+              key={index}
+              href={linkMatch[1]}
+              className="block my-3 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-primary-200 dark:border-primary-700 hover:border-primary-400"
+            >
+              <div className="flex gap-3 p-3">
+                {/* Product Image */}
+                <div className="w-24 h-24 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                {/* Product Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    {product.category}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                        {product.price} أوقية
+                      </span>
+                      {product.originalPrice > product.price && (
+                        <span className="text-xs text-gray-400 line-through">
+                          {product.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs bg-primary-600 text-white px-3 py-1 rounded-full font-bold">
+                      شاهد المنتج ←
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )
+        }
+        
         return (
           <Link
             key={index}
@@ -207,9 +256,9 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-500 shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-500 shadow-lg flex-shrink-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
@@ -219,7 +268,7 @@ export default function AssistantPage() {
               <ArrowRight className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-full">
+              <div className="bg-white/20 p-2 rounded-full animate-pulse">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div className="text-right">
@@ -239,23 +288,25 @@ export default function AssistantPage() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="container mx-auto max-w-4xl">
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto max-w-4xl p-4 pb-6">
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.sender === 'user' ? 'justify-start' : 'justify-end'} mb-4`}
+              className={`flex ${message.sender === 'user' ? 'justify-start' : 'justify-end'} mb-4 animate-fadeIn`}
             >
               <div
                 className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-3 ${
                   message.sender === 'user'
-                    ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-md'
+                    ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-md border border-gray-200 dark:border-gray-700'
                     : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg'
                 }`}
               >
                 {message.sender === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <Bot className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/20">
+                    <div className="bg-white/20 p-1 rounded-full">
+                      <Bot className="w-4 h-4" />
+                    </div>
                     <span className="text-xs font-bold">خبيرة شادي</span>
                   </div>
                 )}
@@ -270,13 +321,15 @@ export default function AssistantPage() {
           ))}
           
           {isTyping && (
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 animate-fadeIn">
               <div className="bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-2xl px-4 py-3 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <Bot className="w-4 h-4" />
+                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/20">
+                  <div className="bg-white/20 p-1 rounded-full">
+                    <Bot className="w-4 h-4" />
+                  </div>
                   <span className="text-xs font-bold">خبيرة شادي</span>
                 </div>
-                <div className="flex gap-1 mt-2">
+                <div className="flex gap-1">
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                   <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -288,14 +341,14 @@ export default function AssistantPage() {
         </div>
       </div>
 
-      {/* Input */}
-      <div className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 p-4 shadow-lg">
+      {/* Input - Fixed at bottom */}
+      <div className="bg-white dark:bg-gray-800 border-t-2 border-primary-200 dark:border-primary-700 p-4 shadow-2xl flex-shrink-0">
         <div className="container mx-auto max-w-4xl">
-          <div className="flex gap-2">
+          <div className="flex gap-3 items-center">
             <button
               onClick={handleSend}
               disabled={!inputValue.trim() || isTyping}
-              className="bg-gradient-to-r from-primary-600 to-primary-500 text-white p-3 rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+              className="bg-gradient-to-r from-primary-600 to-primary-500 text-white p-4 rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95 flex-shrink-0"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -303,12 +356,16 @@ export default function AssistantPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="اكتبي سؤالك هنا..."
-              className="flex-1 px-4 py-3 rounded-full border-2 border-gray-200 dark:border-gray-700 focus:border-primary-400 focus:outline-none text-right bg-gray-50 dark:bg-gray-900 dark:text-white"
+              onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSend()}
+              placeholder="اكتبي سؤالك هنا... 💬"
+              className="flex-1 px-5 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 focus:border-primary-400 focus:ring-2 focus:ring-primary-200 focus:outline-none text-right bg-gray-50 dark:bg-gray-900 dark:text-white text-base transition-all"
               disabled={isTyping}
+              autoFocus
             />
           </div>
+          <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
+            اضغطي Enter للإرسال • خبيرة شادي جاهزة لمساعدتك ✨
+          </p>
         </div>
       </div>
     </div>
