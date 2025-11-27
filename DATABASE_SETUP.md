@@ -349,3 +349,62 @@ USING (auth.role() = 'admin');
 4. **أخيراً:** نحول الكود لاستخدام قاعدة البيانات
 
 **هل تريد أن أساعدك في إعداد Supabase الآن؟** 🎯
+
+---
+
+## 🆕 تحديث جديد: جدول التصنيفات
+
+### إضافة جدول Categories
+
+تم إنشاء ملف migration جديد في:
+```
+supabase/migrations/create_categories.sql
+```
+
+### لتطبيق التحديث:
+
+#### الطريقة 1: من Supabase Dashboard
+1. افتح **SQL Editor** في Supabase
+2. انسخ محتوى ملف `supabase/migrations/create_categories.sql`
+3. الصق في SQL Editor
+4. اضغط **Run**
+
+#### الطريقة 2: باستخدام Supabase CLI
+```bash
+# تثبيت Supabase CLI
+npm install -g supabase
+
+# ربط المشروع
+supabase link --project-ref your-project-ref
+
+# تطبيق المigrations
+supabase db push
+```
+
+### ما يفعله هذا التحديث:
+✅ إنشاء جدول `categories` مع الحقول:
+- `id` (UUID)
+- `name` (اسم بالإنجليزية)
+- `name_ar` (اسم بالعربية)
+- `icon` (اسم الأيقونة)
+- `display_order` (ترتيب العرض)
+
+✅ إضافة التصنيفات الافتراضية:
+- الكل (all)
+- العناية بالبشرة (skincare)
+- العناية بالشعر (haircare)
+- المكياج (makeup)
+
+✅ إضافة عمود `category_id` لجدول `products`
+
+✅ ربط المنتجات الموجودة بالتصنيفات
+
+✅ تفعيل Row Level Security
+
+### الآن التصنيفات تُجلب من قاعدة البيانات! 🎉
+
+يمكنك إضافة تصنيفات جديدة من خلال:
+```sql
+INSERT INTO categories (name, name_ar, icon, display_order) 
+VALUES ('perfumes', 'العطور', 'Droplet', 4);
+```
