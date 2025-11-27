@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Build products list
     const productsList = products
       .filter((p: any) => p.inStock)
-      .map((p: any) => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.description || p.category}`)
+      .map((p: any) => `- ${p.name} (${p.price} أوقية) [ID:${p.id}] - ${p.category}`)
       .join('\n')
 
     // Create a beauty expert prompt

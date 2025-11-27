@@ -119,6 +119,16 @@ export default function BeautyAssistant() {
       }
 
       console.log('🚀 Calling AI API...')
+      
+      // Send only essential product data to avoid 413 error
+      const productData = products.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        category: p.category,
+        inStock: p.inStock
+      }))
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -126,7 +136,7 @@ export default function BeautyAssistant() {
         },
         body: JSON.stringify({
           message: userMessage,
-          products: products,
+          products: productData,
         }),
       })
 
