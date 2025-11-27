@@ -2,7 +2,6 @@
 
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import BeautyAssistant from '@/components/BeautyAssistant'
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +11,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       <Footer />
-      <BeautyAssistant />
     </>
   )
 }

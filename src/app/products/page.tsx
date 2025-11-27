@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import ProductCard from '@/components/ProductCard'
-import { Search, Filter } from 'lucide-react'
+import { Search, Package, Sparkles, Scissors, Heart } from 'lucide-react'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([])
@@ -26,6 +26,13 @@ export default function ProductsPage() {
     }
   }
 
+  const categoryIcons: any = {
+    'الكل': Package,
+    'العناية بالبشرة': Sparkles,
+    'العناية بالشعر': Scissors,
+    'المكياج': Heart,
+  }
+
   const categories = ['الكل', ...Array.from(new Set(products.map(p => p.category)))]
 
   const filteredProducts = products.filter(product => {
@@ -36,61 +43,74 @@ export default function ProductsPage() {
   })
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4">
-            <span className="gradient-text">جميع المنتجات</span>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile Header */}
+      <div className="bg-gradient-to-r from-primary-600 to-primary-500 py-6 md:py-8">
+        <div className="container mx-auto px-4">
+          <h1 className="text-2xl md:text-4xl font-black text-white text-center">
+            جميع المنتجات
           </h1>
-          <p className="text-xl text-gray-600">اكتشفي مجموعتنا الكاملة من منتجات التجميل</p>
+          <p className="text-sm md:text-base text-white/90 text-center mt-2">اكتشفي مجموعتنا الكاملة</p>
         </div>
+      </div>
 
-        {/* Search and Filter */}
-        <div className="mb-8 space-y-4">
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-gray-800 py-4 shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="ابحثي عن منتج..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-12 pl-4 py-4 rounded-full border-2 border-gray-200 focus:border-primary-400 focus:outline-none text-right"
+              className="w-full pr-10 pl-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary-400 focus:outline-none text-right bg-gray-50 dark:bg-gray-900 dark:text-white"
             />
           </div>
+        </div>
+      </div>
 
-          {/* Categories */}
-          <div className="flex flex-wrap gap-3 justify-center">
-            {categories.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                  selectedCategory === category
-                    ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-primary-50 border-2 border-gray-200'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+      {/* Categories - Sticky */}
+      <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 py-3 shadow-md">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map(category => {
+              const Icon = categoryIcons[category] || Package
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                    selectedCategory === category
+                      ? 'bg-primary-600 text-white shadow-lg scale-105'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-sm font-bold">{category}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
+      </div>
 
-        {/* Products Grid */}
+      <div className="container mx-auto px-3 py-6">
+
+        {/* Products Grid - 2 Columns Mobile */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 animate-pulse">
-                <div className="bg-gray-200 dark:bg-gray-700 h-48 rounded-xl mb-4"></div>
-                <div className="bg-gray-200 dark:bg-gray-700 h-4 rounded mb-2"></div>
-                <div className="bg-gray-200 dark:bg-gray-700 h-4 rounded w-2/3"></div>
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-3 animate-pulse">
+                <div className="bg-gray-200 dark:bg-gray-700 aspect-square rounded-lg mb-3"></div>
+                <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded mb-2"></div>
+                <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded w-2/3"></div>
               </div>
             ))}
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {filteredProducts.map(product => (
                 <ProductCard key={product._id || product.id} product={product} />
               ))}
@@ -98,7 +118,7 @@ export default function ProductsPage() {
 
             {filteredProducts.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-2xl text-gray-400 dark:text-gray-500">لا توجد منتجات مطابقة للبحث</p>
+                <p className="text-lg text-gray-400 dark:text-gray-500">لا توجد منتجات مطابقة للبحث</p>
               </div>
             )}
           </>
