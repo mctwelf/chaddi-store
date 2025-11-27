@@ -30,9 +30,13 @@ export default function Home() {
     try {
       const res = await fetch('/api/products')
       const data = await res.json()
-      setProducts(data.filter((p: any) => p.inStock))
+      
+      // Ensure data is an array before filtering
+      const productsArray = Array.isArray(data) ? data : []
+      setProducts(productsArray.filter((p: any) => p.inStock))
     } catch (error) {
       console.error('Error fetching products:', error)
+      setProducts([])
     } finally {
       setLoading(false)
     }

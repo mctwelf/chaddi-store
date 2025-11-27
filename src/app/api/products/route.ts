@@ -41,7 +41,11 @@ export async function GET() {
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase error:', error)
+      // Return empty array instead of error object
+      return NextResponse.json([])
+    }
 
     // Transform snake_case to camelCase for compatibility
     const products = data?.map(product => ({
@@ -56,6 +60,7 @@ export async function GET() {
     return NextResponse.json(products)
   } catch (error) {
     console.error('Error fetching products:', error)
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+    // Return empty array instead of error object to prevent filter/map errors
+    return NextResponse.json([])
   }
 }

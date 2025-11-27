@@ -80,11 +80,17 @@ export default function BeautyAssistant() {
         console.log('🔄 Fetching products...')
         const res = await fetch('/api/products')
         const data = await res.json()
-        console.log('✅ Products fetched:', data.length)
-        setProducts(data)
-        productsRef.current = data
+        
+        // Ensure data is an array
+        const productsArray = Array.isArray(data) ? data : []
+        console.log('✅ Products fetched:', productsArray.length)
+        
+        setProducts(productsArray)
+        productsRef.current = productsArray
       } catch (error) {
         console.error('❌ Error fetching products:', error)
+        setProducts([])
+        productsRef.current = []
       }
     }
     fetchProducts()
