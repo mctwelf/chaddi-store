@@ -2,17 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import ProductCard from '@/components/ProductCard'
-import { Search, Package, Sparkles, Scissors, Heart } from 'lucide-react'
+import { Search, Package, Sparkles, Scissors, Heart, Droplet, ShoppingBag } from 'lucide-react'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('الكل')
+  const [selectedCategory, setSelectedCategory] = useState('all')
+
+  const iconMap: any = {
+    Package,
+    Sparkles,
+    Scissors,
+    Heart,
+    Droplet,
+    ShoppingBag,
+  }
 
   useEffect(() => {
+    fetchCategories()
     fetchProducts()
   }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories')
+      const data = await res.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      setCategories([
+        { id: 'all', name: 'all', name_ar: 'الكل', icon: 'Package' },
+        { id: 'skincare', name: 'skincare', name_ar: 'العناية بالبشرة', icon: 'Sparkles' },
+        { id: 'haircare', name: 'haircare', name_ar: 'العناية بالشعر', icon: 'Scissors' },
+        { id: 'makeup', name: 'makeup', name_ar: 'المكياج', icon: 'Heart' },
+      ])
+    }
+  }
 
   const fetchProducts = async () => {
     try {
@@ -26,19 +53,10 @@ export default function ProductsPage() {
     }
   }
 
-  const categoryIcons: any = {
-    'الكل': Package,
-    'العناية بالبشرة': Sparkles,
-    'العناية بالشعر': Scissors,
-    'المكياج': Heart,
-  }
-
-  const categories = ['الكل', ...Array.from(new Set(products.map(p => p.category)))]
-
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (product.description || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'الكل' || product.category === selectedCategory
+    const matchesCategory = selectedCategory === 'all' || product.category?.toLowerCase().includes(selectedCategory.toLowerCase())
     return matchesSearch && matchesCategory
   })
 
@@ -74,20 +92,20 @@ export default function ProductsPage() {
       <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 py-3 shadow-md">
         <div className="container mx-auto px-4">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map(category => {
-              const Icon = categoryIcons[category] || Package
+            {categories.map(cat => {
+              const Icon = iconMap[cat.icon] || Package
               return (
                 <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-                    selectedCategory === category
+                    selectedCategory === cat.name
                       ? 'bg-primary-600 text-white shadow-lg scale-105'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span className="text-sm font-bold">{category}</span>
+                  <span className="text-sm font-bold">{cat.name_ar}</span>
                 </button>
               )
             })}

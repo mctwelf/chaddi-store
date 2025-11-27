@@ -7,24 +7,43 @@ import ProductCard from '@/components/ProductCard'
 
 export default function Home() {
   const [products, setProducts] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState(false)
 
-  const categories = [
-    { id: 'all', name: 'الكل', icon: Package },
-    { id: 'skincare', name: 'العناية بالبشرة', icon: Sparkles },
-    { id: 'haircare', name: 'العناية بالشعر', icon: Scissors },
-    { id: 'makeup', name: 'المكياج', icon: Heart },
-  ]
+  // Icon mapping
+  const iconMap: any = {
+    Package,
+    Sparkles,
+    Scissors,
+    Heart,
+    Droplet,
+    ShoppingBag,
+  }
 
   useEffect(() => {
     setIsVisible(true)
-  }, [])
-
-  useEffect(() => {
+    fetchCategories()
     fetchFeaturedProducts()
   }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories')
+      const data = await res.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      // Fallback to default categories
+      setCategories([
+        { id: 'all', name: 'all', name_ar: 'الكل', icon: 'Package' },
+        { id: 'skincare', name: 'skincare', name_ar: 'العناية بالبشرة', icon: 'Sparkles' },
+        { id: 'haircare', name: 'haircare', name_ar: 'العناية بالشعر', icon: 'Scissors' },
+        { id: 'makeup', name: 'makeup', name_ar: 'المكياج', icon: 'Heart' },
+      ])
+    }
+  }
 
   const fetchFeaturedProducts = async () => {
     try {
@@ -88,19 +107,19 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat) => {
-              const Icon = cat.icon
+              const Icon = iconMap[cat.icon] || Package
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => setSelectedCategory(cat.name)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-                    selectedCategory === cat.id
+                    selectedCategory === cat.name
                       ? 'bg-primary-600 text-white shadow-lg scale-105'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span className="text-sm font-bold">{cat.name}</span>
+                  <span className="text-sm font-bold">{cat.name_ar}</span>
                 </button>
               )
             })}
