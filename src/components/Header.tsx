@@ -138,10 +138,14 @@ export default function Header() {
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className={`fixed top-0 right-0 h-full w-80 bg-white dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 ${
+            className={`fixed top-0 right-0 h-full w-80 shadow-2xl transform transition-transform duration-300 overflow-hidden ${
               isMenuOpen ? 'translate-x-0' : 'translate-x-full'
             }`}
             onClick={(e) => e.stopPropagation()}
+            style={{ 
+              backgroundColor: isDark ? '#111827' : '#ffffff',
+              zIndex: 60
+            }}
           >
             {/* Drawer Header */}
             <div className="bg-gradient-to-r from-primary-600 to-primary-500 p-6">
@@ -157,7 +161,7 @@ export default function Header() {
             </div>
 
             {/* Drawer Links */}
-            <nav className="p-6 flex flex-col gap-4 overflow-y-auto">
+            <nav className="p-6 flex flex-col gap-4 overflow-y-auto h-full" style={{ backgroundColor: isDark ? '#111827' : '#ffffff' }}>
               <Link
                 href="/"
                 onClick={() => setIsMenuOpen(false)}
