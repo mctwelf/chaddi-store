@@ -110,28 +110,21 @@ export default function CartPage() {
                   <span className="font-bold">{cartTotal} أوقية</span>
                 </div>
                 <div className="flex justify-between text-base md:text-lg dark:text-gray-300">
-                  <span>الشحن</span>
-                  <span className="font-bold text-green-600 dark:text-green-400">
-                    {cartTotal >= 1000 ? '🎉 مجاني' : 'يحدده المسؤول'}
+                  <span>التوصيل</span>
+                  <span className="font-bold text-primary-600 dark:text-primary-400">
+                    100 أوقية 🚚
                   </span>
                 </div>
                 <div className="border-t-2 dark:border-gray-700 pt-3 md:pt-4 flex justify-between text-xl md:text-2xl font-black">
                   <span className="dark:text-white">الإجمالي</span>
                   <span className="text-primary-600 dark:text-primary-400">
-                    {cartTotal} أوقية {cartTotal >= 1000 ? '+ شحن مجاني' : '+ تكلفة الشحن'}
+                    {cartTotal + 100} أوقية
                   </span>
                 </div>
               </div>
-              {cartTotal >= 1000 ? (
-                <div className="bg-green-50 border-2 border-green-200 p-4 rounded-xl text-sm text-green-700 mb-6">
-                  🎉 مبروك! حصلتي على شحن مجاني
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-sm text-blue-700 mb-6">
-                  💡 أضيفي {1000 - cartTotal} أوقية للحصول على شحن مجاني<br/>
-                  <span className="text-xs">تكلفة الشحن سيحددها المسؤول حسب موقعك</span>
-                </div>
-              )}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 p-4 rounded-xl text-sm text-blue-700 dark:text-blue-300 mb-6">
+                � رسوم التوصيل 100 أوقية لجميع الطلبات
+              </div>
               <Link href="/checkout" className="btn-primary w-full block text-center">
                 إتمام الطلب
               </Link>

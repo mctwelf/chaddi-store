@@ -338,7 +338,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 p-4 rounded-xl text-sm text-blue-700 dark:text-blue-300 mt-4">
-                🚚 رسوم التوصيل ثابتة 100 أوقية لجميع الطلبات
+                🚚 رسوم التوصيل 100 أوقية لجميع الطلبات
               </div>
             </div>
           </div>
