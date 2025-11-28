@@ -57,7 +57,8 @@ export default function CheckoutPage() {
   }
 
   const sendWhatsAppOrder = () => {
-    const isFreeShipping = cartTotal >= 1000
+    const deliveryFee = 100 // Fixed delivery fee for all orders
+    const totalWithDelivery = cartTotal + deliveryFee
     
     // إنشاء رسالة الطلب
     let message = `🛍️ *طلب جديد من متجر شادي*\n\n`
@@ -82,8 +83,8 @@ export default function CheckoutPage() {
     
     message += `💰 *الملخص المالي:*\n`
     message += `المجموع الفرعي: ${cartTotal} أوقية\n`
-    message += `الشحن: ${isFreeShipping ? '🎉 مجاني' : '⚠️ يرجى تحديد تكلفة الشحن'}\n`
-    message += `*المبلغ المطلوب: ${cartTotal} أوقية${isFreeShipping ? ' (شحن مجاني)' : ' + تكلفة الشحن'}*\n\n`
+    message += `التوصيل: 100 أوقية 🚚\n`
+    message += `*المبلغ الإجمالي: ${totalWithDelivery} أوقية*\n\n`
     
     if (formData.notes) {
       message += `📝 *ملاحظات:*\n${formData.notes}\n\n`
@@ -99,7 +100,8 @@ export default function CheckoutPage() {
   }
 
   const saveOrderToDatabase = async () => {
-    const isFreeShipping = cartTotal >= 1000
+    const deliveryFee = 100
+    const totalWithDelivery = cartTotal + deliveryFee
     
     try {
       const response = await fetch('/api/orders', {
@@ -108,17 +110,19 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          city: formData.city,
+          customerName: formData.name,
+          customerPhone: formData.phone,
           address: formData.address,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
+          city: formData.city,
+          location: formData.latitude && formData.longitude ? {
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+          } : null,
           notes: formData.notes,
           items: cart,
           subtotal: cartTotal,
-          shippingCost: isFreeShipping ? 0 : null,
-          total: cartTotal,
+          shippingCost: deliveryFee,
+          total: totalWithDelivery,
         }),
       })
       
@@ -193,8 +197,6 @@ export default function CheckoutPage() {
       </div>
     )
   }
-
-  const isFreeShipping = cartTotal >= 1000
 
   return (
     <div className="min-h-screen py-12 dark:bg-gray-900">
@@ -323,28 +325,21 @@ export default function CheckoutPage() {
                   <span className="font-bold">{cartTotal} أوقية</span>
                 </div>
                 <div className="flex justify-between dark:text-gray-300">
-                  <span>الشحن</span>
-                  <span className="font-bold text-green-600">
-                    {isFreeShipping ? '🎉 مجاني' : 'يحدده المسؤول'}
+                  <span>التوصيل</span>
+                  <span className="font-bold text-primary-600 dark:text-primary-400">
+                    100 أوقية 🚚
                   </span>
                 </div>
                 <div className="border-t-2 dark:border-gray-700 pt-3 flex justify-between text-xl md:text-2xl font-black">
                   <span className="dark:text-white">الإجمالي</span>
                   <span className="text-primary-600 dark:text-primary-400">
-                    {cartTotal} أوقية {isFreeShipping ? '+ شحن مجاني' : '+ تكلفة الشحن'}
+                    {cartTotal + 100} أوقية
                   </span>
                 </div>
               </div>
-              {isFreeShipping ? (
-                <div className="bg-green-50 border-2 border-green-200 p-4 rounded-xl text-sm text-green-700 mt-4">
-                  🎉 مبروك! حصلتي على شحن مجاني
-                </div>
-              ) : (
-                <div className="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-sm text-blue-700 mt-4">
-                  💡 الشحن سيحدده المسؤول حسب موقعك<br/>
-                  <span className="text-xs">أضيفي {1000 - cartTotal} أوقية للحصول على شحن مجاني</span>
-                </div>
-              )}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 p-4 rounded-xl text-sm text-blue-700 dark:text-blue-300 mt-4">
+                🚚 رسوم التوصيل ثابتة 100 أوقية لجميع الطلبات
+              </div>
             </div>
           </div>
         </div>
