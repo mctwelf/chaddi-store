@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ar_MR',
     alternateLocale: ['en_US', 'fr_FR'],
-    url: 'https://chaddistore.vercel.app',
+    url: 'https://chaddistore.com',
     siteName: 'شادي ستور - Chaddi Store',
     title: 'شادي ستور - متجر شادي للجمال والعناية | Chaddi Store',
     description: 'متجر شادي (Chaddi Store) - أفضل متجر جمال في موريتانيا. منتجات التجميل والعناية بالبشرة والشعر',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
   },
   alternates: {
-    canonical: 'https://chaddistore.vercel.app',
+    canonical: 'https://chaddistore.com',
   },
   category: 'Beauty & Cosmetics',
 }

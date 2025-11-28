@@ -85,7 +85,7 @@ export default function Home() {
     "name": "شادي ستور - Chaddi Store",
     "alternateName": ["متجر شادي", "Chaddi Beauty Shop", "شادي للجمال"],
     "description": "متجر شادي (Chaddi Store) - أفضل متجر جمال في موريتانيا. منتجات التجميل والعناية بالبشرة والشعر",
-    "url": "https://chaddistore.vercel.app",
+    "url": "https://chaddistore.com",
     "telephone": "+222-XX-XX-XX-XX",
     "address": {
       "@type": "PostalAddress",
@@ -99,7 +99,7 @@ export default function Home() {
       "longitude": "-15.9582"
     },
     "priceRange": "$$",
-    "image": "https://chaddistore.vercel.app/og-image.jpg",
+    "image": "https://chaddistore.com/og-image.jpg",
     "sameAs": [
       "https://facebook.com/chaddistore"
     ],
