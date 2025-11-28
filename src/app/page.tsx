@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Script from 'next/script'
 import { Sparkles, Star, TrendingUp, Heart, ShoppingBag, Package, Droplet, Scissors } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 
@@ -77,8 +78,63 @@ export default function Home() {
                p.category_id === selectedCat?.id
       })
 
+  // Structured Data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "شادي ستور - Chaddi Store",
+    "alternateName": ["متجر شادي", "Chaddi Beauty Shop", "شادي للجمال"],
+    "description": "متجر شادي (Chaddi Store) - أفضل متجر جمال في موريتانيا. منتجات التجميل والعناية بالبشرة والشعر",
+    "url": "https://chaddistore.vercel.app",
+    "telephone": "+222-XX-XX-XX-XX",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "نواكشوط",
+      "addressRegion": "الدهين",
+      "addressCountry": "MR"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "18.0735",
+      "longitude": "-15.9582"
+    },
+    "priceRange": "$$",
+    "image": "https://chaddistore.vercel.app/og-image.jpg",
+    "sameAs": [
+      "https://facebook.com/chaddistore"
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "منتجات التجميل",
+      "itemListElement": [
+        {
+          "@type": "OfferCatalog",
+          "name": "العناية بالبشرة",
+          "itemListElement": []
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "العناية بالشعر",
+          "itemListElement": []
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "المكياج",
+          "itemListElement": []
+        }
+      ]
+    }
+  }
+
   return (
     <div className="min-h-screen dark:bg-gray-900">
+      {/* Structured Data for SEO */}
+      <Script
+        id="structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
       {/* Hero Section - Mobile Optimized */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-500 via-primary-600 to-accent-500 dark:from-primary-700 dark:to-primary-800 py-16 md:py-24">
         {/* Animated Background */}
