@@ -36,30 +36,41 @@ export async function POST(request: Request) {
 // GET - Fetch all products
 export async function GET() {
   try {
+    console.log('🔍 Fetching products from Supabase...')
+    
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Supabase error:', error)
+      console.error('❌ Supabase error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       // Return empty array instead of error object
       return NextResponse.json([])
     }
 
+    console.log(`✅ Found ${data?.length || 0} products`)
+    
+    if (!data || data.length === 0) {
+      console.warn('⚠️  No products in database! Add products via /admin')
+      return NextResponse.json([])
+    }
+
     // Transform snake_case to camelCase for compatibility
-    const products = data?.map(product => ({
+    const products = data.map(product => ({
       ...product,
       _id: product.id,
       originalPrice: product.original_price,
       inStock: product.in_stock,
       createdAt: product.created_at,
       updatedAt: product.updated_at,
-    })) || []
+    }))
 
+    console.log('📦 Sample product:', products[0]?.name)
     return NextResponse.json(products)
   } catch (error) {
-    console.error('Error fetching products:', error)
+    console.error('❌ Error fetching products:', error)
     // Return empty array instead of error object to prevent filter/map errors
     return NextResponse.json([])
   }

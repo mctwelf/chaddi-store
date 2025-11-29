@@ -48,14 +48,22 @@ export default function Home() {
 
   const fetchFeaturedProducts = async () => {
     try {
+      console.log('🔍 Fetching products...')
       const res = await fetch('/api/products')
       const data = await res.json()
       
+      console.log('📦 Received data:', data)
+      console.log('📊 Is array?', Array.isArray(data))
+      console.log('📈 Length:', data?.length)
+      
       // Ensure data is an array before filtering
       const productsArray = Array.isArray(data) ? data : []
-      setProducts(productsArray.filter((p: any) => p.inStock))
+      const inStockProducts = productsArray.filter((p: any) => p.inStock)
+      
+      console.log('✅ In-stock products:', inStockProducts.length)
+      setProducts(inStockProducts)
     } catch (error) {
-      console.error('Error fetching products:', error)
+      console.error('❌ Error fetching products:', error)
       setProducts([])
     } finally {
       setLoading(false)
